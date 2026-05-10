@@ -26,6 +26,7 @@ class SessionResult:
     final_round_idx: int
     completion_status: str   # "passed" | "forced" | "user_aborted"
     output_format: str       # "md" | "html"
+    slide_template_id: str | None = None
 
 
 def deliver(result: SessionResult) -> Path:
@@ -35,10 +36,29 @@ def deliver(result: SessionResult) -> Path:
     # 1. output.{ext} — copy final BLACK draft to final/
     out_ext = result.output_format
     output_path = final_dir / f"output.{out_ext}"
-    output_path.write_text(
-        final_round.black_draft_path.read_text(encoding="utf-8"),
-        encoding="utf-8",
-    )
+    if result.output_format == "html":
+        try:
+            from .build_slide_html import build
+            build(
+                index_json=Path("skills/roasting/references/slide-templates/index.json"),
+                template_id=result.slide_template_id or "",
+                black_md=final_round.black_draft_path.read_text(encoding="utf-8"),
+                output_html=output_path,
+            )
+        except Exception as e:
+            # Fallback: write output.md with warning footer.
+            fallback_path = final_dir / "output.md"
+            black_md = final_round.black_draft_path.read_text(encoding="utf-8")
+            fallback_path.write_text(
+                black_md + f"\n\n> ⚠️ HTML 슬라이드 빌드 실패. Markdown 폴백으로 출력. 사유: {e}\n",
+                encoding="utf-8",
+            )
+            return final_dir
+    else:
+        output_path.write_text(
+            final_round.black_draft_path.read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
     # 2. critique.md — RGSB comments per round, in order
     final_dir.joinpath("critique.md").write_text(_render_critique(result), encoding="utf-8")
     # 3. reasoning.md — BLACK decision log
