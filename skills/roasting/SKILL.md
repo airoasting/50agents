@@ -1,11 +1,11 @@
 ---
 name: roasting
-description: 화이트칼라 산출물(이메일·보고서·PPT·계약서·이력서·투자 메모·사내 공지·이사회 보고서·IR 자료 등 63개 케이스) 작성을 5-Color Harness 방법론으로 수행. 임원·비즈니스 리더가 자연어 한 줄(/roasting xxxxx 또는 일반 요청)로 호출하면 케이스 자동 매칭 후 BLACK 수행자가 작성하고 RED·SILVER·BLUE·GOLD 4인이 토론 채점. 9.5 합격선까지 최대 4라운드 자동 반복. PPT 케이스에서 slide_library 35개 템플릿 자동 결합. 안티패턴 5종(환각 수치·모호 CTA·누락된 GOLD 후크·톤 미스매치·법무 단정어) 자동 검출. 산출물·평가 코멘트·결정 로그 3종 출력.
+description: 한국어 화이트칼라 산출물(이메일·보고서·PPT·이사회 메모·IR 자료·계약 검토·이력서·사내 공지 등 65개 케이스)을 5-Color Harness로 작성합니다. 한국 비즈니스 리더가 "써줘·다듬어줘·만들어줘·검토해줘·정리해줘" 같은 자연어 요청을 하거나 `/roasting xxxxx`로 호출하면 자동으로 케이스를 골라 BLACK 작성+RGSB 4인 채점(9.5 합격선, 4라운드)으로 산출물·평가·결정 로그를 만듭니다. PPT 케이스는 slide_library 템플릿 자동 결합. 한국어 전용. 영어 입력은 일반 모드 폴백.
 ---
 
 # /roasting — 5-Color Harness Execution Engine
 
-5color 사이트의 63개 케이스를 Claude Code 위에서 *집행*하는 엔진. 임원이 자연어 한 줄로 호출하면, 7-Phase 워크플로우(Pipeline + Supervisor 패턴, Phase 5만 Agent Teams)로 산출물·평가·결정 로그 3종을 출력한다.
+5color 사이트의 65개 케이스를 Claude Code 위에서 *집행*하는 엔진. 임원이 자연어 한 줄로 호출하면, 7-Phase 워크플로우(Pipeline + Supervisor 패턴, Phase 5만 Agent Teams)로 산출물·평가·결정 로그 3종을 출력한다.
 
 ## 핵심 원칙
 
@@ -26,7 +26,7 @@ description: 화이트칼라 산출물(이메일·보고서·PPT·계약서·이
 
 ### Phase 1 — PARSE (Expert Pool 라우팅)
 
-목적: xxxxx → 63 케이스 중 1개 매칭.
+목적: xxxxx → 65 케이스 중 1개 매칭.
 
 처리:
 1. `references/cases/_index.md` 로드 (~30KB).
@@ -79,27 +79,9 @@ description: 화이트칼라 산출물(이메일·보고서·PPT·계약서·이
 
 목적: 케이스 BLACK 페르소나 캐스팅으로 산출물 1차 작성.
 
-호출 방식 (메인 Claude가 직접 수행):
+메인 Claude가 `Agent` 도구로 BLACK 서브에이전트(`agents/roasting-black.md`) 호출. 입력: xxxxx + 케이스 정의 + 슬라이드 템플릿 (PPT만) + 이전 라운드 코멘트 (Round 2+) + enrichments (Phase 2-3에서 수집된 경우). 출력: `_workspace/{session}/round-{n}/black-draft.{md|html}`.
 
-```
-Agent(
-  subagent_type="general-purpose",   # roasting-black.md를 system prompt로 주입
-  description="BLACK draft for {case_id} round {n}",
-  prompt=f"""
-You are following agents/roasting-black.md. Use the case persona from
-references/cases/{case_id}.md (BLACK section) as your character casting.
-
-Inputs:
-- xxxxx: {user_xxxxx}
-- 케이스 정의 (전문): {case_md_content}
-- 슬라이드 템플릿 (PPT만): {slide_meta_json}
-- 이전 라운드 RGSB 코멘트 (Round 2+): {prev_critiques_md}
-
-산출물 작성. Markdown 또는 HTML. 자평·메타 코멘트 금지.
-출력 위치: _workspace/{session}/round-{n}/black-draft.{ext}
-"""
-)
-```
+상세 호출 의사코드는 `references/orchestration.md` 참조.
 
 산출물 저장 후 Phase 4로.
 
@@ -141,138 +123,50 @@ Inputs:
 
 `anti-patterns.json` 저장: `{detected_iterations: [[...], [...]], final: []}`
 
-### Phase 5 — RGSB REVIEW (Primary Path: Agent Teams)
+### Phase 5 — RGSB REVIEW (4인 병렬 채점)
 
-**자동 탐지:** `TeamCreate` 도구가 가용하면 이 경로, 아니면 Sub-Agent Fallback (다음 절).
+목적: BLACK 산출물을 RED·SILVER·BLUE·GOLD 4인이 병렬 채점, 평균 ≥ 9.5 게이트.
 
-#### 5.1 Round 1 — TeamCreate
+**경로 자동 선택:** `TeamCreate` 도구가 가용하면 **Agent Teams 경로** (토론 가능), 아니면 **Sub-Agent 폴백** (병렬 채점만, 토론 불가).
 
-```python
-TeamCreate(
-    team_name=f"5color-rgsb-{case_id}-{session_id}",
-    members=[
-        {"name": "RED",    "agent": "roasting-red",    "model": "opus"},
-        {"name": "GOLD",   "agent": "roasting-gold",   "model": "opus"},
-        {"name": "SILVER", "agent": "roasting-silver", "model": "sonnet"},
-        {"name": "BLUE",   "agent": "roasting-blue",   "model": "sonnet"},
-    ],
-)
-SendMessage(to="all", content={
-  "black_draft": draft_text,
-  "case_definition": case_md,
-  "round": n,
-})
+상세 의사코드는 `references/orchestration.md` 참조.
+
+#### 5.1 Round 1 진입
+
+**Agent Teams 경로** (Primary):
+```
+TeamCreate("5color-rgsb-{case_id}-{session_id}", members=[RED·GOLD opus, SILVER·BLUE sonnet])
+SendMessage(to="all", content={black_draft, case_definition, round})
 ```
 
-> `TeamCreate` 호출이 `NotAvailable` 또는 `Forbidden` 에러를 던지면 Sub-Agent Fallback으로 즉시 전환. 다음 라운드에서도 폴백 유지.
-
-#### 5.2 Fan-out 채점
-
-각 페르소나가 독립 컨텍스트에서 채점 → `TaskCreate("scoring-table-round-{n}")` 등록:
-```json
-{"persona": "RED", "score": 9.4, "reason": "...", "suggestion": "..."}
+**Sub-Agent 폴백** (TeamCreate `NotAvailable`/`Forbidden` 시):
+```
+for reviewer in [RED, GOLD, SILVER, BLUE]:
+    Agent(subagent_type="general-purpose", run_in_background=True,
+          prompt=f"agents/roasting-{reviewer}.md + 케이스 페르소나 + BLACK 산출물 → 1-10 점수 JSON")
 ```
 
-#### 5.3 토론 트리거 (σ ≥ 0.5)
+#### 5.2 채점 + σ 토론
 
-메인이 4 점수의 σ 계산. 트리거 시:
+각 페르소나는 `{score, reason, suggestion}` JSON 반환 → `TaskCreate("scoring-table-round-{n}")`.
 
-```python
-sorted_by_score = sorted(scores.items(), key=lambda x: x[1].score)
-low = sorted_by_score[0]    # (persona, score)
-high = sorted_by_score[-1]
-# 타이브레이커: 점수 동률 시 GOLD > RED > SILVER > BLUE
-TIEBREAK_ORDER = {"GOLD": 0, "RED": 1, "SILVER": 2, "BLUE": 3}
+메인이 σ 계산:
+- **σ < 0.5**: 합의 강함, 평균 사용
+- **σ ≥ 0.5 (Agent Teams)**: 1라운드 토론 — 가장 높은 ↔ 가장 낮은 페르소나가 `SendMessage`로 코멘트 교환 후 재채점. 동률 시 타이브레이커 `GOLD > RED > SILVER > BLUE`. 1라운드 후도 σ ≥ 0.5면 "합의 실패" 표시.
+- **σ ≥ 0.5 (Sub-Agent)**: 토론 불가, 분포 그대로 표시 + 사용자 알림.
 
-SendMessage(
-  to=high.persona, from_=low.persona,
-  content=f"{low.persona}({low.score}) → {high.persona}({high.score}): "
-          f"독자/이성 입장 {low.reason} 약점, 점수 재고려",
-)
-SendMessage(
-  to=low.persona, from_=high.persona,
-  content=f"{high.persona}({high.score}) → {low.persona}({low.score}): "
-          f"{high.reason} 강점 고려",
-)
-# 양측 새 점수 + 코멘트 TaskUpdate
-```
-
-1라운드 후 σ 여전히 ≥ 0.5 → "합의 실패" 표시 + 분포 그대로 사용.
-
-#### 5.4 게이트
+#### 5.3 게이트
 
 평균 ≥ 9.5 → Phase 7. 미만 → Phase 6 (round +1).
 
-#### 5.5 라이프사이클 (★ 케이스당 1팀)
+#### 5.4 라이프사이클 (★ 케이스당 1팀)
 
-- **Round 2+에서 TeamCreate 안 함** (같은 팀 재사용 → 라운드 간 컨텍스트 유지 = 일관성 ↑).
-- 새 BLACK 산출물을 `SendMessage(to="all")`로 broadcast → 5.2부터 반복.
-- Phase 7 진입 직전 1회 `TeamDelete`.
+| | Round 1 | Round n+1 | Phase 7 직전 |
+|---|---|---|---|
+| Agent Teams | TeamCreate | (재사용) | TeamDelete |
+| Sub-Agent | 신규 dispatch | 신규 dispatch | (없음) |
 
-| | Round 1 | Round n+1 |
-|---|---|---|
-| TeamCreate | ✓ | ✗ |
-| BLACK draft broadcast | ✓ | ✓ (새 draft) |
-| 채점 | ✓ | ✓ |
-| 토론 | σ ≥ 0.5 | σ ≥ 0.5 |
-| 비용 | ~$0.18 | ~$0.18 |
-
-#### 5.6 컨텍스트 드리프트 방어
-
-라운드 간 RGSB 컨텍스트 누적 시 채점이 점진적으로 *boost* 또는 *drift*할 위험. 4라운드 cap이 자연 해소.
-
-5라운드 이상으로 늘리지 않음 (Phase 6에서 4라운드에 끊음).
-
----
-
-### Phase 5 — RGSB REVIEW (Sub-Agent Fallback Path)
-
-> v0.1에는 두 경로가 있다: **Sub-Agent Fallback (이 절)** + **Agent Teams (PR 10에서 추가)**. Agent Teams 가용 여부를 자동 탐지해 우선 시도, 실패 시 이 경로로 폴백.
-
-목적: BLACK 산출물을 RED·SILVER·BLUE·GOLD 4인이 *병렬* 채점, 평균 ≥ 9.5 게이트.
-
-처리 (Sub-Agent 모드):
-
-1. **병렬 dispatch (4명 동시):**
-   ```
-   for reviewer in [RED, SILVER, BLUE, GOLD]:
-       Agent(
-         subagent_type="general-purpose",
-         description=f"{reviewer} score for {case_id} round {n}",
-         prompt=f"""
-   You are following agents/roasting-{reviewer.lower()}.md.
-   Use case persona from references/cases/{case_id}.md ({reviewer} section).
-   
-   Score this BLACK output 1-10:
-   {black_draft}
-   
-   Return JSON only:
-   {{"score": <number>, "reason": "<1줄>", "suggestion": "<1줄>"}}
-   """,
-         run_in_background=True,
-       )
-   ```
-
-2. **결과 수집** (4 sub-agents 모두 완료 대기). `rgsb-scores.json` 저장:
-   ```json
-   {
-     "RED": {"score": 9.4, "reason": "...", "suggestion": "..."},
-     "SILVER": {"score": 8.7, "reason": "...", "suggestion": "..."},
-     "BLUE": {"score": 9.1, "reason": "...", "suggestion": "..."},
-     "GOLD": {"score": 7.8, "reason": "...", "suggestion": "..."}
-   }
-   ```
-
-3. **σ 계산 + 토론 트리거** (sub-agent 모드는 토론 SKIP):
-   - σ < 0.5: 평균 사용.
-   - σ ≥ 0.5: **sub-agent 모드는 토론 불가**. 사용자에게 알림: "분포 σ={σ:.2f} — 합의 약함. Agent Teams 모드에서 더 정확합니다."
-     - 분포 그대로 출력에 표시.
-
-4. **게이트:**
-   - 평균 ≥ 9.5 → Phase 7.
-   - 미만 → Phase 6 (round_count +1).
-
-(PR 9에서 작성한 내용 그대로 유지. Agent Teams 비가용 시 이 경로로 자동 폴백.)
+라운드 간 RGSB 컨텍스트 유지로 일관성 ↑. 4라운드 cap이 드리프트 자연 해소.
 
 ### Phase 6 — LOOP (조건부 backedge)
 
@@ -310,7 +204,7 @@ SendMessage(
    if config.telemetry_enabled:
        telemetry.send({
            "user_id": user_uuid,
-           "skill_version": "0.1.0",
+           "skill_version": _read_version(),  # plugin.json에서 동적 로드
            "case_id": case.id,
            "final_score": avg_score,
            "round_count": rounds,
@@ -321,7 +215,7 @@ SendMessage(
            "completion_status": "passed" | "forced" | "user_aborted",
        })
    ```
-   콘텐츠 텍스트는 절대 포함 안 됨.
+   콘텐츠 텍스트는 절대 포함 안 됨. `_read_version()`은 `.claude-plugin/plugin.json`의 `version` 필드를 읽음 (하드코딩 금지).
 
 ## 컨펌 시점
 
@@ -333,22 +227,73 @@ SendMessage(
 | 토론 합의 실패 | 5 | 1라운드 후 σ ≥ 0.5 | 분포 그대로 | 0 |
 | 4라운드 미통과 | 6 | round=4 + score < 9.5 | 강제 출력 + 사유 | 0 |
 
-## 워크플로우 상세 룰
+## 에러 폴백
 
-`references/workflow.md` 참조 (9.5 합격선·4라운드 캡·발화 톤·_workspace 컨벤션).
+| 에러 | 폴백 |
+|---|---|
+| `TeamCreate` 사용 불가 | Sub-Agent 경로 (Phase 5.1 참조) |
+| Opus 일시 불가 | RED/GOLD를 Sonnet으로 자동 다운그레이드 + 사용자 알림 |
+| 라우팅 모든 후보 신뢰도 < 0.5 | 일반 5-Color 모드 (자산 시드 없음) |
+| 슬라이드 템플릿 fetch 실패 | Markdown 폴백 + 경고 footer |
+| `_workspace` 디스크 풀 | 가장 오래된 세션 5개 자동 삭제 + 재시도 |
+| enrich 스킬 미설치 | 조용히 건너뜀, 일반 모드로 진행 |
+| 영어 입력 (한국어 전용 스킬) | 일반 5-Color (자산 시드 없음). 사용자에게 한국어 요청 권유 |
 
-## 출력 포맷
+## 사용 예시
 
-`references/output-formats.md` 참조 (PPT 카테고리 = HTML, 그 외 = Markdown).
+| 입력 | 라우팅 결과 | 출력 |
+|---|---|---|
+| `/roasting 거래처 부장한테 8월 12일까지 회신 달라는 메일` | p1 외부 비즈니스 이메일 | `output.md` 200-500자 + `critique.md` |
+| `이번 분기 임원 PPT 만들어줘` | p41 임원용 PPT | `output.html` (slide_library 결합) |
+| `삼성전자 분기 실적 1페이지로 정리해줘` | p73 DART 기반 회사 분석 (`/dart` enrich) | `output.md` IR 메모 |
+| `신사업 검토할 때 어떤 프레임워크 써야 할까` | p74 전략 프레임워크 메모 (`/strategy` enrich) | `output.md` 1프레임워크 결정 메모 |
+| `5월 조직개편 사내 공지 다듬어줘` | p16 사내 공지 | `output.md` |
+| `LP 분기 레터 써줘` | p35 LP 리포트 | `output.md` |
+| `공급사 사과문 검토해줘` | p2 사과문 (LEGAL_RISK_TERM 안티패턴 적용) | `output.md` + 단정 약속어 자동 검출 |
 
-## 안티패턴
+각 출력에는 항상 3종 산출물이 함께 저장됩니다: `output.{md|html}` (산출물) · `critique.md` (RGSB 4인 평가, 교재) · `reasoning.md` (BLACK 결정 로그).
 
-`references/anti-patterns/*.md` 참조 (5종).
+## 참조 파일 인덱스
 
-## 케이스 카탈로그
+| 경로 | 내용 | 로드 시점 |
+|---|---|---|
+| `references/cases/_index.md` | 65 케이스 1줄 라우팅 인덱스 (~30KB) | Phase 1 |
+| `references/cases/p*.md` | 케이스별 BLACK + RGSB 페르소나 + GOLD 시나리오 + (선택) `enrich:` | Phase 2 (매칭 시) |
+| `references/anti-patterns/*.md` | 5종 검출 룰 + BLACK 재작성 지시 | Phase 4 (적용 안티패턴만) |
+| `references/slide-templates/index.json` | 35 슬라이드 템플릿 메타 (color × formality) | Phase 2 (PPT 케이스만) |
+| `references/workflow.md` | 9.5 합격선 · 4라운드 cap · 발화 톤 · `_workspace` 컨벤션 | 워크플로우 룰 참조 시 |
+| `references/output-formats.md` | 카테고리별 출력 포맷 (PPT=HTML, 외=Markdown) | Phase 7 (산출물 정리) |
+| `references/orchestration.md` | Phase 3·5 의사코드 상세 (Agent Teams + Sub-Agent 분기) | Phase 5 구현 참조 시 |
+| `agents/roasting-{black,red,silver,blue,gold}.md` | 5인 페르소나 *공통* 행동 규약 + 팀 통신 프로토콜 | Phase 3·5 호출 시 system prompt |
 
-`references/cases/_index.md` (라우팅용 인덱스), `references/cases/p*.md` (케이스별 상세).
+## 검증된 품질 지표 (v0.2)
 
-## 에이전트
+| 게이트 | 목표 | 실측 | 출처 |
+|---|---|---|---|
+| 라우팅 정확도 (top-1) | ≥ 90% (Wilson 95% LB) | **98.4%** (LB 0.954) | `tests/routing/test_routing_accuracy.py` (195 phrasings × Haiku judge) |
+| 안티패턴 false positive | 0% | **0%** (50/50) | `tests/anti_patterns/` (5종 × 양성 5 + 음성 5) |
+| 단위/통합 테스트 | green | **97/97 pass** | `pytest -m "not slow and not network"` |
+| 품질 게이트 시나리오 평균 | ≥ 9.0 | **9.17** (1/15 실측) | `tests/quality/test_quality_gate.py` (15 시나리오 풀 런은 v0.3 예정) |
 
-`agents/{black,red,silver,blue,gold}.md` (5종 페르소나 정의).
+베타 사용자 데이터로 v1.0 게이트(평균 ≥ 9.5, 50명 + 100 피드백) 자연 검증.
+
+## Ecosystem (인접 스킬 통합)
+
+`enrich:` 필드로 다른 Claude Code 스킬을 호출해 컨텍스트 보강. v0.2에서 11개 케이스가 declared:
+
+| 케이스 | enrich 스킬 | when |
+|---|---|---|
+| p25 기획안·제안서, p45 컨설팅 덱, p37 산업·시장 분석, p40 경영 진단, p74 전략 메모 | `/strategy` | strategic_question_detected |
+| p28 이사회 보고서, p29 주주 서한, p33 분기 실적 리뷰, p73 DART 회사 분석 | `/dart` | company_name_detected |
+| p31 IR 발표 | `/dart` | always |
+| p34 IC Memo | `/dart` + `/strategy` | dart=company_name_detected, strategy=always |
+
+**v0.2 상태:** `scripts/invoke_skill.py`는 *stub* — 스킬 설치 여부 탐지 + 메타데이터 준비. 실제 Task 도구 dispatch는 v0.3에 추가. 현재는 enrich가 selected되어도 실제 호출 없이 BLACK이 자체 판단으로 진행. 사용자에게 영향 없음 (graceful degradation).
+
+설치 가이드: 사용자가 `/dart`, `/strategy` 스킬을 별도 설치하면 v0.3 출시 시 자동으로 enrich 작동.
+
+## 한 줄 요약
+
+`/roasting xxxxx` (또는 자연어) → 65 케이스 자동 라우팅 → BLACK 1명 + RGSB 4인 5-Color → 9.5 합격선 + 4라운드 → 산출물 3종.
+
+**한국어 전용. 베타 v0.2.** 세부 변경 이력은 [`CHANGELOG.md`](../../CHANGELOG.md) 참조.
