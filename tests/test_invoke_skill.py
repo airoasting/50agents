@@ -18,6 +18,7 @@ def test_returns_result_when_skill_installed(monkeypatch):
     monkeypatch.setattr(os.path, "exists", fake_exists)
     result = invoke("dart", "삼성전자 분기 실적")
     assert result is not None
+    assert isinstance(result, EnrichmentResult)
     assert result.skill == "dart"
     assert result.success is True
 
