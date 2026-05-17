@@ -4,6 +4,36 @@ This project follows [Semantic Versioning](https://semver.org/) and [Keep a Chan
 
 ## [Unreleased]
 
+## [0.4.13] - 2026-05-17
+
+### Added (English-Verb Direct-Translation Block — 10th Anti-Pattern)
+
+- **10번째 anti-pattern 신설: `english-verb-direct`.** 영어 일반 동사를 한국어로 그대로 옮긴 직역체 차단. 3패턴:
+  - **(1) break 직역** — `직무가 깨진다 / 모델이 깨진다 / 시스템이 깨진다 / 비즈니스 모델이 깨진다 / 구조가 깨지는 지점` 류 (비즈니스 추상 대상이 주어로 "깨진다").
+  - **(2) kill 직역** — `가설을 죽인다 / 아이디어를 죽인다 / 옵션을 죽인다 / 프로젝트를 죽인다` 류 (사고·기획 대상이 목적어로 "죽인다").
+  - **(3) force/make 사역 직역** — `AI에게 X를 시킨다 / AI에게 반박시킨다 / AI에게 분석을 시킨다` 류 (AI·도구 + 사역 "시키다").
+- **메타 원칙 신설 — "English-Verb Direct-Translation Trap".** 영어 능동 일반 동사(break·kill·force·make·push·drive·leverage·unlock·kick off·nail down)를 한국어로 1:1 직역하면 자연 발화가 깨진다. 한국어 화자는 더 부드럽고 비유적인 동사 풀(흔들다·접다·다듬다·풀다·받다·두다)로 의미를 다시 짠다.
+- **v0.4.12 jargon 차단(영어 imperative → 강한 단음절 동사 어휘 직역)과 별도 축으로 작동.** v0.4.12 = 어휘 자체 차단, v0.4.13 = 의미 연결 직역 차단.
+- **신규 파일:** `references/anti-patterns/english-verb-direct.md` (3패턴 grep 검출 명령 + 자연 한국어 대체 사전 + 양성·음성 예시 각 5개).
+- **수정 파일:**
+  - `SKILL.md`: 9종 → 10종 anti-pattern 리스트 갱신 (Phase 4 절·참조 인덱스).
+  - `agents/roasting-black.md` Self-Check BLUE 축에 본 룰 한 줄 + 메타 원칙.
+  - `agents/roasting-blue.md` 평가축에 본 룰 별도 감시 항목 + 점수 -0.5/회.
+  - `references/korean-polish.md` 부록 사전에 (D) 카테고리 신설 + 메타 원칙 2 신설.
+- **plugin.json 버전 정합 동기화:** 0.4.9 → 0.4.13 (이전 0.4.10·0.4.11·0.4.12 패치 시 plugin.json bump 누락분 일괄 반영).
+
+### Rationale
+
+2026-05-17 호출(`20260517_08`, c42 강의 자료) 사용자가 두 차례 명시 지적:
+- "직무가 깨진다... 이런 표현은 자연스러운 한국어가 아니야"
+- "가설을 죽인다도 한국어가 아니야. 이런 표현 잘 안써"
+
+검증 결과 v0.4.12까지의 jargon 차단은 *어휘* 직역(drive → 박다)만 잡았고, *의미 연결* 직역(kill the hypothesis → 가설을 죽인다)은 별도 축으로 검출되지 않음. BLACK이 영어 비즈니스 화법의 일반 동사를 무의식적으로 한국어로 1:1 옮기는 학습 편향 발견. 단일 케이스 호출에서 2회 지적이라는 명확한 신호 → 시스템 anti-pattern으로 박아 다음 호출부터 BLACK 자체 차단 + RGSB BLUE 채점 감시.
+
+### Impact
+
+기존 호출 호환성 영향 없음. 다음 /roasting 호출부터 3패턴 grep + BLACK Self-Check 메타 원칙 2 + BLUE 감시 -0.5/회가 자동 활성화. R1 평균 한국어 자연스러움 추가 +0.2~0.4점 개선 예상.
+
 ## [0.4.12] - 2026-05-17
 
 ### Changed (Korean Jargon Block — Strong-Verb Trap)
