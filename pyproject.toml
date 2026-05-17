@@ -7,7 +7,7 @@ include = ["scripts*"]
 
 [project]
 name = "roasting"
-version = "0.2.0"
+version = "0.3.0"
 description = "5-Color Harness execution engine — Claude Code plugin"
 requires-python = ">=3.11"
 dependencies = [

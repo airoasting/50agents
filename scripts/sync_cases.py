@@ -1,6 +1,11 @@
-"""Sync 63 case definitions from airoasting.github.io/5color/ to references/cases/*.md.
+"""Sync 64 case definitions from airoasting.github.io/5color/ to references/cases/*.md.
 
 Pure parsing logic — no Claude API calls. Idempotent: rerunning produces identical files.
+
+Local-only case extensions (p41 임원 PPT, p70 랜딩페이지, p75 DART, p76 전략 메모) live
+alongside the synced cases and are not touched by this script — they exist only in
+``references/cases/`` and never on the 5color site. After syncing, regenerate the
+routing index manually to include both remote and local-only cases.
 """
 from __future__ import annotations
 

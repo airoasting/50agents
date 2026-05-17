@@ -4,9 +4,36 @@ This project follows [Semantic Versioning](https://semver.org/) and [Keep a Chan
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-17
+
 ### Added
 
-- **New case `p70` 웹사이트·랜딩페이지** (folio VII·3, 마케팅) — 한 화면 한 메시지·CTA 한 개 합격선의 랜딩페이지 케이스. BLACK = 그로스 마케팅·랜딩 UX 카피라이터 17년차+. RGSB는 가치제안 한 줄(RED), 정보 위계·CTA 반복(SILVER), 모바일 첫 5초 호흡(BLUE), SNS 광고 클릭 시나리오(GOLD)로 채점.
+- **2 new remote cases synced from airoasting.github.io/5color** — `p73 웹사이트 제작` (folio VII·3, 마케팅 · 단일 HTML 직접 출력) + `p74 이미지 제작` (folio VII·4, 마케팅 · 7단 프롬프트 세트). 사이트 측에서 신설된 케이스를 그대로 흡수.
+- **`direct` 빌드 모드** in `scripts/build_slide_html.py` — `DIRECT_HTML_CASE_IDS = {"p73"}`. BLACK이 작성한 단일 HTML 파일을 템플릿 fetch 없이 `output.html`로 그대로 통과시킨다. PPT/p70과 달리 인라인 CSS·시맨틱 마크업·반응형을 BLACK이 자급.
+- **`p73` `direct` 모드용 BLACK 헤딩 규약** (`agents/roasting-black.md`) — 헤딩 분할 없음, `<!doctype html>`부터 완성, 외부 CDN/이미지 URL 금지.
+- **Routing phrasings 6개 추가** — 신규 p73·p74(웹사이트·이미지) 각 3종. 라우팅 테스트셋 198 → 204.
+
+### Changed
+
+- **64개 케이스 subhead 전면 리라이트** — 5color 사이트에서 "다섯 사람이 ~ 같이 다듬어 드립니다" 패턴을 더 짧고 단정한 "한 호흡, 한 메시지" 스타일로 교체. `sync_cases.py`로 idempotent 갱신.
+- **ID 재할당 (Breaking, but internal):** 로컬에서만 존재하던 `p73 DART 회사 분석` → `p75`로 이동(folio IV·20), `p74 전략 프레임워크 메모` → `p76`(folio V·7)로 이동. 이유 — 5color 사이트의 신규 p73·p74가 마케팅 카테고리(웹사이트·이미지)에 배정되면서 ID 충돌. enrich 블록(/dart, /strategy)은 보존.
+- **`p70` folio** `VII·3` → `VII·5` — 신규 p73 웹사이트 제작과 folio 충돌 해소.
+- **케이스 총량** 66 → 68 (5color 64 + 로컬 확장 4: p41·p70·p75·p76).
+- **SKILL.md** Phase 2 — HTML 산출물 케이스 분기를 `slides`·`landing`·`direct` 3-mode 모델로 재구성. `mode_for_case()`가 단일 진실.
+- **`output-formats.md`** — `direct` 모드 행 추가, p74 이미지(마크다운 7단) 행 추가, p75 DART/p76 전략 ID 정정.
+- **enrich 매핑** (SKILL.md ecosystem 테이블) — `/dart`는 `p75`, `/strategy`는 `p76`을 가리키도록 정정.
+- **`sync_cases.py` 도크스트링** — "63 cases" → "64 cases" + 로컬 확장 케이스 정책 명시.
+- **`plugin.json` description** — 66 → 68, 신규 케이스(image-prompt set, hand-coded website, DART company brief, strategy memo) 노출, p73 `direct` HTML 동작 명시.
+
+### Documentation
+
+- **SKILL.md 예시 테이블** — 신규 p73(웹사이트 직접 HTML) + p74(이미지 프롬프트) 입출력 사례 추가, p75/p76 ID 정정.
+
+## [0.2.1-unreleased] - 2026-05-15
+
+### Added
+
+- **New case `p70` 웹사이트·랜딩페이지** (folio VII·3 → 0.3.0에서 VII·5, 마케팅) — 한 화면 한 메시지·CTA 한 개 합격선의 랜딩페이지 케이스. BLACK = 그로스 마케팅·랜딩 UX 카피라이터 17년차+. RGSB는 가치제안 한 줄(RED), 정보 위계·CTA 반복(SILVER), 모바일 첫 5초 호흡(BLUE), SNS 광고 클릭 시나리오(GOLD)로 채점.
 - **`build_slide_html.py` landing 모드** — H2 단위로 BLACK Markdown을 랜딩 섹션(히어로·소셜프루프·기능·CTA·FAQ)으로 분할하고 slide_library 템플릿 컨테이너에 주입. PPT 모드(슬라이드 단위 H1)와 같은 fetch + container 로직을 공유하고 콘텐츠 블록 셰이프만 다름.
 - **`mode_for_case()` 헬퍼** + `LANDING_CASE_IDS` frozenset — case_id → builder 모드 매핑이 한 곳에 모임. 차후 HTML 산출물 케이스 확장 시 이 함수만 갱신.
 - **Phrasings 3개 추가** (p70 natural/keyword/audience) — 라우팅 테스트셋 195 → 198.

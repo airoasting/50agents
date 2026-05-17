@@ -1,8 +1,7 @@
-"""For HTML-output cases (p41/42/43/45 PPT, p70 landing page), fetch the
-slide_library template HTML and inject BLACK content.
+"""For HTML-output cases, fetch the slide_library template HTML and inject
+BLACK content — or, for hand-coded HTML cases, write BLACK output as-is.
 
-Two modes share the same fetch + container-detection logic; only the block
-shape differs:
+Three modes share the same dispatch surface:
 
 - ``mode="slides"`` (PPT cases p41/42/43/45): split BLACK Markdown by H1
   (fallback H2) into one slide per heading, wrap as ``<section><h1>…``.
@@ -10,6 +9,10 @@ shape differs:
   (hero, social proof, features, CTA, FAQ, footer …) and wrap as
   ``<section class="landing-{slug}"><h2>…``. We split by H2 because BLACK's
   landing skeleton uses one H1 for the page and H2 per landing section.
+- ``mode="direct"`` (p73 웹사이트 제작): BLACK output is already a complete
+  single HTML file (semantic markup + inline CSS + responsive). No template
+  fetch, no container detection — just write the BLACK draft straight to
+  ``output.html``.
 
 Strategy:
 1. Pull template HTML from index.json url field.
@@ -30,7 +33,7 @@ from typing import Literal
 import requests
 from bs4 import BeautifulSoup, Tag
 
-BuildMode = Literal["slides", "landing"]
+BuildMode = Literal["slides", "landing", "direct"]
 
 
 @dataclass
@@ -174,6 +177,9 @@ def build(
     output_html: Path,
     mode: BuildMode = "slides",
 ) -> Path:
+    if mode == "direct":
+        output_html.write_text(black_md, encoding="utf-8")
+        return output_html
     tpl = load_template_meta(index_json, template_id)
     template_html = fetch_template_html(tpl)
     if mode == "landing":
@@ -186,9 +192,14 @@ def build(
 
 
 LANDING_CASE_IDS: frozenset[str] = frozenset({"p70"})
+DIRECT_HTML_CASE_IDS: frozenset[str] = frozenset({"p73"})
 
 
 def mode_for_case(case_id: str) -> BuildMode:
     """Map case_id → builder mode. Keeps the case→mode mapping in one place
     so deliver.py and tests stay in sync."""
-    return "landing" if case_id in LANDING_CASE_IDS else "slides"
+    if case_id in DIRECT_HTML_CASE_IDS:
+        return "direct"
+    if case_id in LANDING_CASE_IDS:
+        return "landing"
+    return "slides"
