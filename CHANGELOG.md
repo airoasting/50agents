@@ -4,6 +4,23 @@ This project follows [Semantic Versioning](https://semver.org/) and [Keep a Chan
 
 ## [Unreleased]
 
+## [0.4.9] - 2026-05-17
+
+### Changed (Docs Slim Pass)
+
+- **SKILL.md 본문에서 v0.4.2/0.4.3/0.4.4/0.4.5/0.4.6/0.4.7/0.4.8 등 인라인 버전 주석 30+곳 일괄 제거.** 본문이 "현재 동작 가이드"로만 읽히도록 정리. 룰 정당화·회고 문구는 보존 (BLACK이 룰의 *이유*를 학습하는 데 필요). 시간 마커("v0.X.X 신설"·"v0.X.X부터"·"v0.X.X 통일")만 추출. 핵심 뼈대(5 원칙·7-Phase·9 안티패턴·Trust 룰·Korean Polish Pass·4종 산출물·표준 푸터·Ecosystem·Design Taste Integration) 무손실.
+- **References 표·푸터의 버전 라벨 정리:** `(v0.4.8 신설)`·`(v0.4.8부터)`·`v0.4.8` 등 시점 라벨 제거. CHANGELOG.md 단일 진실 원천화.
+- **`### 검증된 품질 지표` 헤더에서 "v0.2 측정값, v0.3·v0.4에서 회귀 없음" → "베타 측정값, 후속 패치에서 회귀 없음"으로 일반화.** 버전 시점에 묶이지 않는 표현으로 변경.
+- **GA 표기 일반화:** "v1.0 GA에 활성화" → "GA에 활성화 예정" 등 현재 베타 시점 의존 문구 제거.
+
+### Rationale
+
+skill-creator 루브릭 적용 시 SKILL.md 본문 토큰 비용이 매 호출마다 부과되는데, 인라인 버전 주석은 (a) 현재 시점에서는 "이게 언제 도입됐는지" 정보가 BLACK·RGSB의 산출에 영향을 주지 않고 (b) CHANGELOG.md가 이미 같은 정보를 시계열로 보유하므로 중복이다. 본문은 "현재 룰이 무엇이고 왜 그래야 하는가"에 집중, 시간 정보는 CHANGELOG로 단일화한다.
+
+### Migration Note
+
+기능 변경 0. 동작 변경 0. 의미상의 변경 0. 본문 일부 줄에서 회고 시제만 "v0.4.X부터 ~한다" → "~한다"로 바뀐 정도. 기존 호출·산출물 호환성 무영향.
+
 ## [0.4.8] - 2026-05-17
 
 ### Removed (Hallucinated Rule Purge)
