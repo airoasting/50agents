@@ -4,6 +4,30 @@ This project follows [Semantic Versioning](https://semver.org/) and [Keep a Chan
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-05-17
+
+### Added
+
+- **슬라이드 템플릿 선택 프로세스 강제 (SKILL.md Phase 2-2 신설)** — `slides`·`landing`·`assisted` 모드 모든 호출에서 35종 인덱스에서 **반드시 top-3 후보 추출 → 1순위 1개 선택**. 자동 패스 금지. 1순위 + 2·3순위 + 각 선택 사유를 `reasoning.md`의 "Slide Template Selection" 절에 강제 기록. 사용자에게는 1줄 알림(부담 0턴), 명시적 요청 시 2순위로 교체. v0.4.5까지 preferences 자동 적용으로 디자인 선정이 블랙박스가 되던 약점 해소.
+- **HTML 산출물 베이스 룰 4종 (agents/roasting-black.md)** — 모든 HTML 모드 공통:
+  1. **assisted 모드 슬라이드 템플릿 fetch 강제** — BLACK이 `WebFetch`로 베이스 HTML 받고 `<head>`/디자인 토큰 보존 후 컨테이너에 콘텐츠만 주입. "톤 차용·가이드라인 참고" 해석 금지. 자체 인라인 CSS 처음부터 작성 금지(=`direct` 영역 침범).
+  2. **데스크톱 폭 베이스** — `.container { max-width: 1100px; padding: 48px 32px; }` + 텍스트 `max-width: 720px`. 모바일(`≤ 768px`) 반응형은 별도. 데스크톱에서 600~800px 좁은 페이지가 나오면 BLUE 안티패턴.
+  3. **외부 폰트 로드 베이스** — Playfair Display·Noto Serif KR·Pretendard·Inter 등 비-시스템 폰트를 `font-family`에 쓰면 `<head>`에 Google Fonts/Pretendard CDN `<link>` 자동 주입 강제. v0.4.5까지 폰트 선언만 하고 로드 코드 누락으로 시스템 fallback으로 떨어지던 사고 차단.
+  4. **이미지 URL HTTP 검증 강화** — Phase 4에서 메인 Claude가 `curl -sI -o /dev/null -w "%{http_code}"`로 모든 `<img src>` URL 200 응답 검증. 404/403/timeout이면 `FAKE_IMAGE_URL` 양성 → BLACK 재작성 또는 자리표시자 강제 교체.
+
+### Changed
+
+- **`fake-image-url` 안티패턴 강화** — 검출 기준에 "HTTP 검증 실패 URL"을 1순위 기준으로 추가. 도메인이 Unsplash·공식 사이트라도 ID/경로 환각으로 404가 나면 즉시 양성. Unsplash photo ID는 일정한 패턴이 없어 BLACK이 추측하면 거의 항상 404 — WebSearch + WebFetch로 unsplash.com 검색 페이지에서 실제 노출된 photo URL 추출만 허용.
+- **BLACK 도구 활용 패턴** — assisted 모드에서 `WebFetch`로 슬라이드 템플릿 fetch가 필수 호출이 됨. 이전엔 fact-grounding용 선택적 호출이었음.
+
+### Fixed
+
+- **v0.4.5 타이베이 호출 사고 4건 일괄 차단** (실측 회귀):
+  1. Unsplash photo ID 환각 → HTTP 404 (지금 룰: 사전 검증 + 사후 검증 이중)
+  2. assisted 모드가 사실상 direct로 작동, 디자인 시스템 부재 (지금 룰: WebFetch 강제)
+  3. 데스크톱 폭 680px로 좁음 (지금 룰: 1100px 컨테이너 베이스)
+  4. Playfair Display·Noto Serif 선언만 하고 외부 폰트 로드 누락 (지금 룰: `<link>` 자동 주입)
+
 ## [0.4.5] - 2026-05-17
 
 ### Added
