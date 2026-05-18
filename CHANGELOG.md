@@ -4,6 +4,37 @@ This project follows [Semantic Versioning](https://semver.org/) and [Keep a Chan
 
 ## [Unreleased]
 
+## [0.4.15] - 2026-05-18
+
+### Added (표준 슬라이드 네비게이션 — 키노트/파워포인트식 조작)
+
+v0.4.14까지 슬라이드 데크는 세로 스크롤 구조였다. 사용자가 슬라이드를 열고 화살표 키로 넘기려 해도 아무 반응이 없는 사례가 반복 보고됐다. v0.4.15는 모든 슬라이드 데크가 키노트처럼 한 장씩 화살표로 넘어가게 표준 네비게이션을 강제한다.
+
+- **`agents/roasting-black.md` §5 표준 슬라이드 네비게이션 (신설).** `html_mode: slides|assisted` 산출물에 다음 3종이 정확히 1번씩 박힌다:
+  - **CSS:** `.slide { display: none; opacity: 0; }` + `.slide.active { display: flex; opacity: 1; }` + 풀스크린 데크 레이아웃(`width: min(96vw, 96vh * 1.6); aspect-ratio: 16/10`) + 하단 네비 위젯(`#nav-bar`) + 상단 힌트(`#nav-hint`) 스타일.
+  - **HTML:** 하단 네비게이션 위젯(이전 ‹ · 카운터 1/N · 다음 ›) + 우상단 키 조작 힌트. 첫 슬라이드는 `<div class="slide active">`.
+  - **스크립트:** 정확히 1개의 인라인 `<script>` 블록 (변형 금지). ← → 화살표·스페이스·PageUp/Down으로 다음/이전, Home/End로 처음/끝, F로 전체화면 토글, 마우스 클릭으로 다음, URL 해시(`#3` 등)로 직접 진입.
+- **`landing` 모드(c70)·`direct` 모드(c73)는 적용 제외.** 스크롤 또는 풀스택 구조가 의도.
+- **Phase 7 완료 푸터에 조작 방법 한 줄 안내 추가.** "조작: ← → 키 · Home/End · F 전체화면 · 클릭 다음" 형식.
+
+### Changed
+
+- **`references/anti-patterns/slide-template-violation.md` C 항목 룰 완화.** 기존 "슬라이드 케이스 `<script>` 0회"는 v0.4.6~v0.4.14의 기본 룰이었다. v0.4.15부터는 다음으로 교체:
+  - `<script src=` 외부 스크립트 로드 절대 금지 (의존성·트래킹·analytics 차단 그대로).
+  - 인라인 `<script>`는 §5 표준 네비게이션 블록 *정확히 1개*만 허용. 그 외 임의 인라인 JS는 양성.
+- **검출 룰 D항 신설 (네비게이션 누락).** `keydown` 리스너 누락 · `.slide.active` CSS 룰 누락 · 첫 슬라이드 `.active` 누락 · `#nav-bar` 누락 시 양성. BLACK 재작성 트리거.
+- **BLACK Self-Check §4 필수 검증 항목 갱신.** `<script` 0회 → `<script src=` 0회 + `<script>` 정확히 1회 + `.slide.active` CSS 존재 + `keydown` 리스너 존재 + `#nav-bar` 존재.
+- **SKILL.md Phase 4 메인 grep 패턴 보강.** 외부 스크립트 0회 + 표준 네비게이션 존재 grep 추가 (`landing`·`direct` 모드 제외).
+- **베이스 데크 폭 1200px → 1400px로 확장.** 풀스크린 발표 시 더 큰 가독성. `width: min(96vw, 96vh * 1.6)`로 뷰포트 자동 적응.
+
+### Why
+
+v0.4.6 환각 룰 사고(`deck-stage.js` 404) 이후 "JS 0줄이 진짜 룰"이라는 안전 룰을 박았다. 슬라이드 템플릿이 실제로 JS 0줄로 운영되기 때문. 그러나 그건 *템플릿 자체*의 룰이지 *최종 산출물*에 그대로 적용할 룰은 아니었다. 사용자가 슬라이드 데크를 받았을 때 키노트처럼 동작하지 않아 매번 별도 변환을 요청하는 패턴이 누적됐다. v0.4.15는 표준 네비게이션 블록 *정확히 1개*만 허용하는 식으로 안전성(외부 호출·트래킹 차단)은 그대로 유지하면서 발표 모드 UX를 표준화한다.
+
+### Migration
+
+기존 산출물은 그대로. 다음 호출부터 자동 적용.
+
 ## [0.4.14] - 2026-05-18
 
 ### Added (No-Specify Defaults — 기본 설정 4종)

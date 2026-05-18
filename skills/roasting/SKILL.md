@@ -362,13 +362,18 @@ message_form: 조언·제언·인사이트 중 입력 톤에 맞는 형태
 - `aspect-ratio: 16 / 10` 누락
 - `container-type: inline-size` 누락
 - `cqi` 단위 사용량 10회 미만 (실제로는 50회 이상이 정상)
-- 슬라이드 케이스인데 `<script` 태그 사용 (JS 0줄이 진짜 룰)
+- `<script src=` 외부 스크립트 (0회여야 함, v0.4.15)
+- 슬라이드 케이스에서 표준 네비게이션 블록(`agents/roasting-black.md` §5) 누락 또는 변형 (v0.4.15)
+- `keydown` 이벤트 리스너 누락 (화살표 네비게이션 부재, v0.4.15)
+- 첫 슬라이드에 `.active` 클래스 누락 또는 `.slide.active` CSS 룰 누락 (v0.4.15)
 
 **Phase 4 강화 — BLACK Self-Check + 메인 grep 교차 검증 의무화:**
 BLACK Self-Check 4축 통과 보고가 실제 grep 검증에서 위반 다수 발견되는 사례가 누적된다. 메인 Claude는 BLACK 산출물 받은 직후 다음 grep 패턴을 직접 실행해 거짓 통과를 차단:
 - em dash 0회 (`grep -c "—"`)
 - 환각 룰 0회 (`grep -c "<deck-stage>\|deck-stage.js\|1920px\|1080px"`)
 - 진짜 베이스 룰 존재 (`grep -c "class=\"deck\"\|aspect-ratio: 16 / 10\|container-type: inline-size\|cqi"`)
+- 외부 스크립트 0회 (`grep -c "<script src="`, v0.4.15)
+- 표준 네비게이션 존재 (`grep -c "keydown\|nav-bar\|slide.active"` ≥ 3, v0.4.15. landing·direct 모드 제외)
 - 카테고리별 추가 패턴
 
 각 룰의 `applies_to_categories`로 케이스 카테고리별 적용 여부 결정.
