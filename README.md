@@ -6,7 +6,8 @@
 ![Agents](https://img.shields.io/badge/Agents-50%20Verified-d2691e)
 ![Recipes](https://img.shields.io/badge/Recipes-12%20Harnesses-d2691e)
 ![Mode](https://img.shields.io/badge/Mode-Agent%20Teams-2ea44f)
-![Runs on](https://img.shields.io/badge/Runs%20on-Claude%20Code%20%2B%20ChatGPT-1f6feb)
+![Native](https://img.shields.io/badge/Native-Claude%20Code-8957e6)
+![Also on](https://img.shields.io/badge/Also%20on-ChatGPT-555555)
 
 ![Layer](https://img.shields.io/badge/Layer-L3%20Execution-d2691e)
 ![Sub-layer](https://img.shields.io/badge/Sub--layer-Verified%20Team%20Executor-008080)
@@ -16,6 +17,8 @@
 > 목적 한 줄을 받아, 검증된 50명 에이전트 팀원 중에서 팀을 설계하고 **실제로 돌려** 검토 통과본까지 만들어 내는 Claude Code 스킬.
 
 `AI ROASTING`이 로스팅(5색 다관점 채점)으로 검증한 50개 역할 프롬프트와 12개 검증된 팀 레시피를 기반으로, 사용자가 "무엇을 만들지(목적)"만 말하면 팀장(오케스트레이터)이 "누가 어떤 순서로 하는지"를 정하고 끝까지 진행한다.
+
+**기본(네이티브) 플랫폼은 Claude Code다.** 독립 에이전트로 팀을 돌리고 검토자도 진짜 독립이라 9.5 게이트가 가장 강하게 작동한다. [ChatGPT는 호환 모드로도 쓸 수 있다](#chatgpt에서-쓰기)(단일 모델 순차 실행).
 
 ## 무엇을 하나
 
@@ -56,9 +59,9 @@ Claude Code를 재시작하면 스킬이 로드된다.
 
 검토자는 산출물을 만들지 않은 **독립 에이전트**로, 사용자의 원래 목적·자료에 대고 구체적 결함부터 찾는다. 결함이 하나라도 있으면 9.5를 주지 않고, 그 단계로 한 번 되돌려 보강한 뒤 통과시킨다. (실측 테스트에서 게이트가 첫 통과를 거부하고 6.5로 불합격 처리한 뒤 보강을 요구했다. 통과를 거저 주지 않는, 실제로 떨어지는 게이트다.)
 
-## ChatGPT에서 쓰기
+## ChatGPT에서 쓰기 (호환 모드)
 
-Claude Code 외에 **ChatGPT(Custom GPT)** 로도 같은 동작을 쓸 수 있다. `platforms/chatgpt/`에 셋업이 있다.
+기본은 Claude Code지만, **ChatGPT(Custom GPT)** 로도 같은 동작을 쓸 수 있다. `platforms/chatgpt/`에 셋업이 있다.
 
 - `platforms/chatgpt/INSTRUCTIONS.md` — Custom GPT "Instructions"에 붙여 넣을 본문
 - `platforms/chatgpt/SETUP.md` — 5분 셋업(Instructions 붙여넣기 + `references/` 4개를 Knowledge로 업로드 + 브라우징 켜기)
