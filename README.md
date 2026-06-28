@@ -4,14 +4,14 @@
 ![License](https://img.shields.io/badge/License-Apache%202.0-1f6feb)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-8957e6)
 ![Agents](https://img.shields.io/badge/Agents-50%20Verified-d2691e)
-![Recipes](https://img.shields.io/badge/Recipes-12%20Harnesses-d2691e)
+![Recipes](https://img.shields.io/badge/Recipes-28%20Harnesses-d2691e)
 ![Mode](https://img.shields.io/badge/Mode-Agent%20Teams-2ea44f)
 ![Native](https://img.shields.io/badge/Native-Claude%20Code-8957e6)
 ![Also on](https://img.shields.io/badge/Also%20on-ChatGPT-555555)
 
 > 목적 한 줄을 받아, 검증된 50명 에이전트 팀원 중에서 팀을 설계하고 **실제로 돌려** 검토 통과본까지 만들어 내는 Claude Code 스킬.
 
-`AI ROASTING`이 로스팅(5색 다관점 채점)으로 검증한 50개 역할 프롬프트와 12개 검증된 팀 레시피를 기반으로, 사용자가 "무엇을 만들지(목적)"만 말하면 팀장(오케스트레이터)이 "누가 어떤 순서로 하는지"를 정하고 끝까지 진행한다.
+`AI ROASTING`이 로스팅(5색 다관점 채점)으로 검증한 50개 역할 프롬프트와 28개 검증된 팀 레시피를 기반으로, 사용자가 "무엇을 만들지(목적)"만 말하면 팀장(오케스트레이터)이 "누가 어떤 순서로 하는지"를 정하고 끝까지 진행한다.
 
 **기본(네이티브) 플랫폼은 Claude Code다.** 독립 에이전트로 팀을 돌리고 검토자도 진짜 독립이라 9.5 게이트가 가장 강하게 작동한다. [ChatGPT는 호환 모드로도 쓸 수 있다](#chatgpt에서-쓰기)(단일 모델 순차 실행).
 
@@ -20,7 +20,7 @@
 목적 입력 → ① 목적 파악 → ② 팀 설계 → ③ 팀 구조 제시 → ④ 실행 → ⑤ 검토(9.5 게이트) → 최종 결과.
 
 - **부품(Agent)** 50개 = 단일 역할 시스템 프롬프트. 전부 9.5+ 합격선으로 로스팅 검증.
-- **레시피(Harness)** 12개 = 부품을 handoff로 엮은 검증된 팀(리서치 보고서·시장 분석·재무 리뷰·발표자료·전략·회의 정리 등).
+- **레시피(Harness)** 28개 = 부품을 handoff로 엮은 검증된 팀(리서치 보고서·시장 분석·재무 리뷰·발표자료·전략·회의 정리 등).
 - **라우터** = 목적 → 레시피 매칭 또는 부품 새 조합. 이게 핵심 IP다.
 
 ## 설치
@@ -80,7 +80,7 @@ _workspace/
 - `platforms/chatgpt/INSTRUCTIONS.md` — Custom GPT "Instructions"에 붙여 넣을 본문
 - `platforms/chatgpt/SETUP.md` — 5분 셋업(Instructions 붙여넣기 + `references/` 4개를 Knowledge로 업로드 + 브라우징 켜기)
 
-ChatGPT엔 서브에이전트가 없어 실행은 **단일 모델 순차 모드**(스킬의 폴백 모드)로, 게이트는 "냉정 재독" 독립 검토로 동작한다. 검증된 50 부품·12 레시피·9.5 게이트는 동일하다.
+ChatGPT엔 서브에이전트가 없어 실행은 **단일 모델 순차 모드**(스킬의 폴백 모드)로, 게이트는 "냉정 재독" 독립 검토로 동작한다. 검증된 50 부품·28 레시피·9.5 게이트는 동일하다.
 
 ## 장착 도구
 
@@ -103,7 +103,7 @@ roasting/
 ├── LICENSE                        # Apache License 2.0
 ├── references/
 │   ├── catalog.md                 # 50명 부품 표(선발용)
-│   ├── harnesses.md               # 12 레시피 + 토글 + 매칭 키워드
+│   ├── harnesses.md               # 28 레시피 + 토글 + 매칭 키워드
 │   ├── agent-prompts.md           # 50명 전체 시스템 프롬프트(실행용, id로 선택)
 │   └── execution-modes.md         # 실행 모드 3종 · 병렬/순차 · 에이전트·검토자 템플릿
 └── platforms/
