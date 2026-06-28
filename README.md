@@ -9,11 +9,6 @@
 ![Native](https://img.shields.io/badge/Native-Claude%20Code-8957e6)
 ![Also on](https://img.shields.io/badge/Also%20on-ChatGPT-555555)
 
-![Layer](https://img.shields.io/badge/Layer-L3%20Execution-d2691e)
-![Sub-layer](https://img.shields.io/badge/Sub--layer-Verified%20Team%20Executor-008080)
-![Quality](https://img.shields.io/badge/Quality-9.5%20Gate-2ea44f)
-![README](https://img.shields.io/badge/README-KO-555555)
-
 > 목적 한 줄을 받아, 검증된 50명 에이전트 팀원 중에서 팀을 설계하고 **실제로 돌려** 검토 통과본까지 만들어 내는 Claude Code 스킬.
 
 `AI ROASTING`이 로스팅(5색 다관점 채점)으로 검증한 50개 역할 프롬프트와 12개 검증된 팀 레시피를 기반으로, 사용자가 "무엇을 만들지(목적)"만 말하면 팀장(오케스트레이터)이 "누가 어떤 순서로 하는지"를 정하고 끝까지 진행한다.
