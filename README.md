@@ -1,393 +1,90 @@
-# roasting
+# Roasting — 에이전트 팀 빌더 (실행 엔진)
 
-> **5-Color Harness execution engine for Korean white-collar work.**
-> One producer + four critics with mandatory debate, not just score-averaging. Auto-routes
-> 68 cases (emails, board memos, IR letters, landing pages, image-prompt sets, hand-coded
-> websites, DART company briefs, strategy memos …), iterates against a **9.5 / 10** pass
-> bar with anti-pattern pre-correction, and delivers polished Korean output. All inside
-> Claude Code. Open Beta v0.4.13.
+![Version](https://img.shields.io/badge/Version-1.0.0-2ea44f)
+![License](https://img.shields.io/badge/License-Apache%202.0-1f6feb)
+![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-8957e6)
+![Agents](https://img.shields.io/badge/Agents-50%20Verified-d2691e)
+![Recipes](https://img.shields.io/badge/Recipes-12%20Harnesses-d2691e)
+![Mode](https://img.shields.io/badge/Mode-Agent%20Teams-2ea44f)
 
-**Korean documentation:** [README.ko.md](README.ko.md)
+![Layer](https://img.shields.io/badge/Layer-L3%20Execution-d2691e)
+![Sub-layer](https://img.shields.io/badge/Sub--layer-Verified%20Team%20Executor-008080)
+![Quality](https://img.shields.io/badge/Quality-9.5%20Gate-2ea44f)
+![README](https://img.shields.io/badge/README-KO-555555)
 
----
+> 목적 한 줄을 받아, 검증된 50명 에이전트 팀원 중에서 팀을 설계하고 **실제로 돌려** 검토 통과본까지 만들어 내는 Claude Code 스킬.
 
-## Install
+`AI ROASTING`이 로스팅(5색 다관점 채점)으로 검증한 50개 역할 프롬프트와 12개 검증된 팀 레시피를 기반으로, 사용자가 "무엇을 만들지(목적)"만 말하면 팀장(오케스트레이터)이 "누가 어떤 순서로 하는지"를 정하고 끝까지 진행한다.
 
-```bash
-/plugin marketplace add airoasting/roasting
-/plugin install roasting@airoasting
-```
+## 무엇을 하나
 
----
+목적 입력 → ① 목적 파악 → ② 팀 설계 → ③ 팀 구조 제시 → ④ 실행 → ⑤ 검토(9.5 게이트) → 최종 결과.
 
-## What it does
+- **부품(Agent)** 50개 = 단일 역할 시스템 프롬프트. 전부 9.5+ 합격선으로 로스팅 검증.
+- **레시피(Harness)** 12개 = 부품을 handoff로 엮은 검증된 팀(리서치 보고서·시장 분석·재무 리뷰·발표자료·전략·회의 정리 등).
+- **라우터** = 목적 → 레시피 매칭 또는 부품 새 조합. 이게 핵심 IP다.
 
-`/roasting` takes a one-line description of your task in natural Korean and:
-
-1. **Routes** your request to the best-matching case from a library of 68 white-collar artifact
-   types (emails, apologies, board memos, investor letters, legal opinions, landing pages,
-   hand-coded websites, image-prompt sets, …).
-2. **Casts** five personas *per case*. Every case has its own producer + 4 critics with their
-   own vocabulary, pass-line scenes, and forbidden patterns.
-3. **Produces** a first draft through the BLACK persona, the case-cast expert author.
-4. **Auto-corrects** for 10 anti-patterns (vague CTA, unsourced numbers, legal-risk terms,
-   missing GOLD hook, tone mismatch, unsourced facts, fake image URLs, internal contradictions,
-   slide-template violations, English-verb direct translations) *before* the critics see
-   the draft.
-5. **Reviews** the draft with four specialist critics: RED (logic), SILVER (domain expertise),
-   BLUE (empathy/tone), GOLD (reader-in-scene simulation).
-6. **Debates** when critics disagree (score spread σ ≥ 0.5): the highest and lowest scorer
-   exchange comments and re-score. No forced consensus.
-7. **Iterates** up to 4 rounds against a **9.5 / 10** pass bar. If the bar isn't met after
-   round 4, the engine reports the gap honestly rather than passing under-quality work.
-8. **Delivers** three outputs: the polished artifact, a critique sheet, and a reasoning log.
-   HTML output has three sub-modes: `slides` for PPT cases (template-injected), `landing`
-   for p70 (template-injected by H2 section), and `direct` for p73 웹사이트 제작 (BLACK
-   writes a complete HTML file from scratch, no template fetch).
-
----
-
-## What makes 5-Color Harness distinctive
-
-"Harness" patterns put roles, rules, and verification on top of an LLM. 5-Color is not just
-another producer-reviewer loop. Six things set it apart.
-
-### 1. Per-case persona casting
-
-The five personas are *not generic*. For an email, BLACK is a 15-year B2B SaaS senior with
-Bain-consultant reply tone; for an executive PPT, BLACK is a 17-year McKinsey-bred strategy
-director. The four critics are recast just as specifically: their vocabulary, their
-end-of-turn patterns, and their pass-line scenes change per case. The 68 case definitions
-themselves are the IP, not the orchestration code.
-
-**BLACK casting examples (4 of 68 cases):**
-
-| Case | BLACK casting |
-|---|---|
-| External business email | 15-year B2B SaaS senior, Bain-consultant reply tone |
-| Executive PPT | 17-year strategy director, McKinsey/Bain exec-deck tone |
-| Crisis apology | 18-year crisis-comms director, PR triage tone |
-| Landing page | 17-year growth marketer & landing UX copywriter, Silicon Valley SaaS tone |
-
-The four critics shift the same way. The vocabulary RED uses for an email is not the
-vocabulary RED uses for an IR earnings call.
-
-### 2. GOLD is a reader, not a critic
-
-RED, SILVER, and BLUE evaluate the draft. **GOLD does not.** GOLD simulates the actual
-recipient *in a specific scene*:
-
-> "Tuesday 9am, the CEO scans the deck for 5 minutes right before the exec meeting."
-
-GOLD asks "will this person sign / ask a follow-up / close the tab?", not "is this good?"
-That scene-based reader simulation is the most distinctive piece of the harness.
-
-### 3. Critics disagree on purpose
-
-If the score spread σ ≥ 0.5, debate is triggered automatically. The highest and lowest scorer
-exchange short comments and re-score. Consensus is never forced. Most harnesses average and
-move on; 5-Color averages *only when agreement is cheap*, and surfaces the disagreement when
-it isn't.
-
-### 4. A real numeric pass bar
-
-Not "good enough." A 3-reviewer average ≥ 9.5 **and** GOLD engagement ≥ 9.5. If the bar isn't
-met after 4 rounds, the engine forces output and reports: "below 9.5 (max=9.2). Possible
-casting or task-definition issue. 1-on-1 recommended." The bar's transparency is the value.
-
-### 5. Pre-critique anti-pattern correction
-
-Ten detectors run *before* the four critics ever see the draft. Each rule declares
-`applies_to_categories` so only relevant detectors fire per case.
-
-| Detector | Catches |
-|---|---|
-| `VAGUE_CTA` | Emails ending in "please review" with no clear verb |
-| `LEGAL_RISK_TERM` | Absolute promises ("guarantee," "100%") in legal/external comms |
-| `HALLUCINATED_NUMBER` | Unsourced percentages or counts |
-| `MISSING_GOLD_HOOK` | First 200 chars don't activate the GOLD scene |
-| `TONE_MISMATCH` | First sentence vocabulary drifts from cast tone |
-| `UNSOURCED_FACT` *(v0.4.5)* | Specific facts (places, prices, specs) without 1st-party sources |
-| `FAKE_IMAGE_URL` *(v0.4.5)* | Hallucinated image URLs in HTML or Markdown outputs |
-| `INTERNAL_CONTRADICTION` *(v0.4.7)* | Same object labeled, numbered, or dated inconsistently across the artifact |
-| `SLIDE_TEMPLATE_VIOLATION` *(v0.4.8)* | HTML slide outputs violating the real template baseline (`<deck-stage>` hallucination, 1920px fixed pixels, missing `.deck` container, etc.) |
-| `ENGLISH_VERB_DIRECT` *(v0.4.13)* | break / kill / force direct translations: "직무가 깨진다" (job breaks), "가설을 죽인다" (kill the hypothesis), "AI에게 시킨다" (force AI to do X) |
-
-BLACK rewrites itself before review; the round counter is not decremented. Three consecutive
-hits on the same pattern escalate to the user. Critics never waste cycles on first-order
-defects.
-
-### 6. The case library is the asset
-
-`/roasting` is not a generic writing assistant. Each of the 68 cases ships with its own:
-BLACK casting, RGSB persona definitions, GOLD scene, pass-line criteria, forbidden phrases,
-and style rules. The asset is *which experts to cast for which artifact*, captured as
-checked-in `.md` files at `skills/roasting/references/cases/p*.md` and mirrored on the
-canonical [5color site](https://airoasting.github.io/5color).
-
----
-
-## How it differs from other harness patterns
-
-| Pattern | Typical shape | 5-Color Harness |
-|---|---|---|
-| **Director-Critic** | 1 generator + 1 critic | 4 critics on *different axes*, debate when σ ≥ 0.5 |
-| **Self-Refine / CoT** | One model talking to itself | 5 *cast* personas with role-bleed prohibition |
-| **Multi-Agent Debate** | 2-3 homogeneous agents arguing | 4 heterogeneous axes (logic / domain / empathy / reader scene) |
-| **Constitutional AI** | Rule-based self-critique | Persona-and-scene-based critique tied to a specific case |
-| **Generic Producer-Reviewer** | 1+1, average or pass/fail | 1+4, 9.5 bar, 4-round cap, pre-critique anti-pattern loop |
-| **RLHF / RLAIF** | Training-time feedback | Inference-time inline critique, per user call |
-
-The core distinction: most harnesses use a *general-purpose evaluator*. 5-Color makes the
-*recipient's situation* and the *case-specific professional standards* into the critics'
-identity. The question shifts from "is this good?" to "*will this specific reader, in this
-specific scene, take the next action?*"
-
-The second distinction: critique happens in two layers. Anti-pattern detectors clean
-first-order defects before the human-modeled critics arrive. Critics focus on logic,
-structure, tone, and reader engagement. Never on missing citations or vague CTAs.
-
----
-
-## Quick samples
-
-```
-/roasting 거래처 부장한테 8월 12일까지 회신 달라는 메일
-→ p1 외부 비즈니스 이메일 → output.md (concise B2B email, 4-reviewer scored)
-
-/roasting 이번 분기 임원 PPT (실적 + 리스크 + 결정사항 3개)
-→ p41 임원 PPT → output.html (slide_library template, `slides` mode)
-
-/roasting B2B SaaS 결제 모듈 랜딩페이지
-→ p70 웹사이트·랜딩페이지 → output.html (template + landing-section injection, `landing` mode)
-
-/roasting Stripe 스타일 SaaS 한 페이지 사이트 만들어줘
-→ p73 웹사이트 제작 → output.html (BLACK writes complete HTML directly, `direct` mode)
-
-/roasting 인스타 릴스 커버 이미지 프롬프트 짜줘
-→ p74 이미지 제작 → output.md (7-step prompt set: scene / framing / lighting / palette / style / aspect / negative)
-
-/roasting 삼성전자 분기 실적 1페이지로
-→ p75 DART-based company analysis (auto-enriched via /dart) → output.md
-```
-
-### What the output actually looks like
-
-Input:
-```
-/roasting 거래처 부장한테 8월 12일까지 회신 달라는 메일
-```
-
-Polished output (after 4-reviewer pass, scores RED 9.5 / SILVER 9.6 / BLUE 9.4 / GOLD 9.6):
-```
-김OO 부장님,
-
-지난 협의 건 답변을 8월 12일(월) 18시까지 회신 부탁드립니다.
-회신이 늦어지면 다음 본부장 회의 안건 상정이 어려워, 동일 사안을
-9월로 이연해야 합니다.
-
-답변이 어려운 경우 일정 조정도 가능합니다. 한 줄로 알려주십시오.
-
-[발신자 / 직책 / 회사]
-```
-
-If the engine fails to reach 9.5 after round 4, it forces output and reports honestly:
-```
-Done. Below 9.5 (max=9.2, round 4 forced output).
-Likely cause: BLUE 8.9. Deadline pressure too direct for the recipient's expected register.
-Next action: revisit casting or task framing. 1-on-1 recommended.
-```
-
-The bar's transparency is the value. Failed runs surface the gap rather than passing
-under-quality work.
-
-### Why 9.5 and not 9.0 or 9.7?
-
-The bar is not uniform across cases. Defect weight differs per artifact type.
-
-| Bar | Applies to | Why |
-|---|---|---|
-| **9.0** | Personal-tone assets (poetry, fiction, personal blog) | No single answer exists. Quantitative pressure flattens the author's voice. |
-| **9.5** (default) | Standard white-collar artifacts (emails, reports, internal comms) | Beta data shows ≥ 9.5 yields > 90% of recipients taking the intended next action. |
-| **9.7** | Defect-as-loss artifacts (contracts, board memos, shareholder letters, apologies, IR) | A single absolute-promise word creates legal exposure; one shifted phrase loses trust. |
-
-The bar is declared in the case definition's BLACK-casting line, alongside word count and
-end-of-sentence style.
-
----
-
-## Three deliverables per call
-
-| File | Content | Use |
-|---|---|---|
-| `output.{md|html}` | Final artifact | What the executive actually uses |
-| `critique.md` | Per-round reviewer comments | Teaching material, next-call learning |
-| `reasoning.md` | BLACK decision log + anti-pattern history | Audit, reproducibility, debugging |
-
-All three live in `{output_dir}/{session}/final/`. Nothing leaves the local machine.
-
-**Custom output location (v0.4.2):** Set `~/.claude/roasting/config.json` with an
-`output_dir` field to redirect all session folders. If the config file is missing or the
-field is empty, defaults to `~/.claude/roasting/_workspace/`. Absolute paths and
-`~`-prefixed paths both work.
-
-**macOS / Linux:**
+## 설치
 
 ```bash
-mkdir -p ~/.claude/roasting ~/Desktop/Roasting
-cat > ~/.claude/roasting/config.json << 'EOF'
-{"output_dir": "~/Desktop/Roasting"}
-EOF
+# 프로젝트의 .claude/skills/ 아래로 복사
+cp -r roasting <your-project>/.claude/skills/roasting
 ```
 
-**Windows:** Desktop location varies depending on OneDrive sync, so the cleanest option
-is `~/Roasting` (directly under the home directory — not affected by OneDrive redirection,
-resolves the same on every PC).
+Claude Code를 재시작하면 스킬이 로드된다.
 
-PowerShell:
+## 사용법
 
-```powershell
-New-Item -ItemType Directory -Force "$HOME\Roasting" | Out-Null
-New-Item -ItemType Directory -Force "$HOME\.claude\roasting" | Out-Null
-@'
-{"output_dir": "~/Roasting"}
-'@ | Set-Content "$HOME\.claude\roasting\config.json"
+```
+/roasting 경쟁사 3곳을 분석해서 이사회용 보고서 만들어줘
 ```
 
-cmd:
+또는 "팀 짜줘", "이거 팀으로 해줘", 혹은 보고서·분석·발표자료·제안서·재무검토·회의정리 같은 결과물을 "만들어 달라"고 하면 발동한다. 어떤 팀원이 필요한지 몰라도 목적만 주면 된다.
 
-```cmd
-mkdir "%USERPROFILE%\Roasting" 2>nul
-mkdir "%USERPROFILE%\.claude\roasting" 2>nul
-echo {"output_dir":"~/Roasting"} > "%USERPROFILE%\.claude\roasting\config.json"
-```
+## 실행 모드 (티어드)
 
-If you really want the Windows Desktop, open Explorer and check the actual Desktop path
-(usually `~/Desktop/...` without OneDrive, `~/OneDrive/Desktop/...` with OneDrive), then
-put that into `output_dir`.
+쓸 수 있는 도구에 따라 위에서부터 고른다.
 
----
+1. **에이전트 팀** — `TeamCreate`/`SendMessage`/`TaskCreate` 가능 시. 팀원이 공유 작업목록으로 자체 조율.
+2. **서브에이전트** — `Agent` 도구만 있으면. 의존 단계는 파이프라인, 독립 단계는 병렬(fan-out). (기본·안정)
+3. **순차 역할극** — 에이전트 도구가 없으면 팀장이 직접 역할을 순서대로 수행. (폴백)
 
-## Korean cases, universal pattern
+핵심은 팀원이 **각자 독립 컨텍스트**라는 점이다. 그래서 (a) 검토자가 진짜 독립이라 9.5 게이트가 자기채점이 아니고, (b) 독립 단계를 병렬로 돌린다.
 
-The 68 case definitions, critic personas, and quality rules are written in Korean and built
-for Korean white-collar workflows. English input falls back to general 5-Color mode without
-case-specific seeds.
+## 품질 게이트
 
-The underlying *harness pattern* is language-agnostic: per-case persona casting, mandatory
-debate when score spread σ ≥ 0.5, a 9.0 / 9.5 / 9.7 tiered pass bar, pre-critique
-anti-pattern correction, and a scene-cast GOLD reader. If you want to build the same kind
-of execution engine in another language or domain, this repository is a reference
-architecture. For Korean-language details see [README.ko.md](README.ko.md).
+검토자는 산출물을 만들지 않은 **독립 에이전트**로, 사용자의 원래 목적·자료에 대고 구체적 결함부터 찾는다. 결함이 하나라도 있으면 9.5를 주지 않고, 그 단계로 한 번 되돌려 보강한 뒤 통과시킨다. (실측 테스트에서 게이트가 6.5 → 9.2로 실제 두 번 탈락 후 통과했다 — 형식적 게이트가 아니다.)
 
----
+## 장착 도구
 
-## Privacy
+일부 팀원은 AI ROASTING 자사 도구를 역할별로 쥐고 있다.
 
-Telemetry, if enabled, contains metadata only: case ID, round count, score distribution,
-detected anti-patterns, completion status. **No user input (`xxxxx`), no draft content, no
-critic comments ever leave the local machine.** Outputs and reasoning logs live entirely in
-`~/.claude/roasting/_workspace/`.
-
----
-
-## Cost
-
-Roughly **~$0.36 per call** at default settings: 5 personas × 4-round cap × fixed case
-definitions. Cost is deterministic, not exploratory.
-
----
-
-## Status
-
-**Open Beta v0.4.13.** Production-ready for individual use. The Agent Teams path remains
-experimental and falls back to sequential sub-agent execution on error. Known limits and
-roadmap are in [README.ko.md § 12 알려진 한계](README.ko.md).
-
-### What's new in v0.4.5–v0.4.13 (2026-05-17)
-
-- **v0.4.13 — English verb direct-translation block.** 10th anti-pattern `ENGLISH_VERB_DIRECT`
-  catches break / kill / force literal translations ("직무가 깨진다 / 가설을 죽인다 / AI에게
-  시킨다"). Separate axis from v0.4.12 lexical jargon block. Triggered by 2× user feedback
-  in a c42 lecture-deck session.
-- **v0.4.10–v0.4.12 — Korean jargon block (3 categories).** Strong monosyllabic verbs
-  (박·갈·꽂·민·말·돌리·태우·털·깎·굴리) + English-translation adverbs (즉시·가동) + system
-  nominalizations (재편·재구성·흡수·압축·구축) all blocked. Meta-principle: "consulting
-  decisiveness comes from clarity of conclusion, not vocabulary intensity."
-- **v0.4.11 — Case ID prefix rename.** All 68 cases renamed to `c1.md` ~ `c76.md` (previous
-  prefix collided with `prompt` / `page` semantics).
-- **v0.4.7–v0.4.8 — Pre-processing pack + slide-template hallucination purge.** BLACK now
-  pre-resolves relative dates and missing parameters before drafting. Slide-template
-  hallucinations (`<deck-stage>`, `deck-stage.js` 404, 1920×1080 fixed) eliminated via the
-  `SLIDE_TEMPLATE_VIOLATION` detector. Korean polish pass (Phase 6.5) added.
-- **v0.4.5 — Fact-grounding + image citation.** Search-heavy outputs (travel, company
-  briefs, statistics) now require 1st-party sources; `UNSOURCED_FACT` and `FAKE_IMAGE_URL`
-  detectors added.
-
-### What's new in v0.4 (2026-05-17)
-
-- **Fallback workflow enforced.** Even when the case library doesn't match, BLACK + RGSB
-  4-reviewer scoring + 9.5 gate run end-to-end with a generic 5-persona profile. No
-  shortcutting.
-- **`assisted` builder mode added.** HTML builder now has 4 modes: `slides` / `landing` /
-  `direct` / `assisted`. The new mode handles generic-case + HTML requests by picking one of
-  the 35 `slide_library` templates as the base, then letting BLACK inject content + any
-  needed interactions (tabs, filters, etc.).
-- **`html_mode` frontmatter field.** Case files now declare their HTML mode explicitly.
-  SKILL.md no longer hardcodes case IDs.
-- **taste-skill integration.** 8 design-related cases (p41/42/43/45/p59/p70/p73/p74) plus
-  generic-case + HTML now auto-enrich with [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill)
-  variants (`design-taste-frontend`, `brandkit`, `imagegen-frontend-web`, etc.) for
-  anti-slop output. Install: `npx skills add https://github.com/Leonxlnx/taste-skill`.
-  Graceful degradation if not installed.
-- **Real enrich dispatch.** `/dart`, `/strategy`, and taste-skill variants are now invoked
-  through Claude's `Skill` tool directly. The earlier stub references to non-existent Python
-  scripts have been replaced with explicit "Claude procedure" descriptions.
-
-Verified quality metrics (v0.2 measurement; no regression through v0.4.13):
-
-| Gate | Target | Measured |
+| 도구 | 용도 | 받는 팀원 |
 |---|---|---|
-| Routing top-1 accuracy | ≥ 90% (Wilson 95% LB) | **98.4%** (LB 0.954) on 204 phrasings |
-| Anti-pattern false positive | 0% | **0%** (50 / 50) |
-| Unit + integration tests | green | **102 / 102 pass** |
-| Quality-gate scenarios (avg) | ≥ 9.0 | **9.17** (1 / 18 sampled; full run planned for v0.5) |
+| [전략 도구 갤러리](https://airoasting-strategy.vercel.app/) | 70개 컨설팅 프레임워크 | 전략 기획·SWOT·비즈니스 케이스·의사결정 |
+| [5color](https://5color.vercel.app/) | 5인 페르소나 검토 지침 생성 | 품질 검수·비판적 검토·문서 검토·교정 |
+| [슬라이드 라이브러리](https://airoasting-slide.vercel.app/) | 35개 HTML 슬라이드 템플릿 | 프레젠테이션 기획·제안서 |
+| [AI ROASTING 블로그](https://airoasting-blog.vercel.app/) | 글로벌 리서치 인사이트 | 리서치·트렌드·마켓 |
+| [스킬 라이브러리](https://airoasting-skill.vercel.app/) | 엄선된 실무 AI 스킬 | 자동화 설계·SOP |
 
----
-
-## Architecture (one paragraph)
-
-7-phase pipeline. **Phase 0** initializes a session workspace. **Phase 1** routes against
-the 68-case index; if all candidates score below 0.5 confidence, it falls back to
-`generic_case` mode with a generic 5-persona profile (BLACK + RGSB + 9.5 gate still
-enforced). **Phase 2** loads the case definition, reads the `html_mode` frontmatter field
-(`slides` / `landing` / `direct` / `assisted`) to pick a `slide_library` template for
-non-`direct` HTML cases, and optionally invokes adjacent skills (`/dart`, `/strategy`,
-taste-skill variants) declared in the case's `enrich:` field. **Phase 3** runs BLACK to
-produce a first draft. **Phase 4** runs ten anti-pattern detectors with a 3-strike cap.
-**Phase 5** runs RGSB review (Agent Teams primary path: 4 critics in parallel, with
-`SendMessage` debate; sub-agent fallback if `TeamCreate` is unavailable). **Phase 6** loops
-back to Phase 3 if the average is below 9.5 and round count < 4. **Phase 7** delivers the
-three artifacts.
-
-Details: [skills/roasting/SKILL.md](skills/roasting/SKILL.md).
-
----
-
-## Contributing
-
-Bug reports and feedback are welcome via GitHub Issues. From inside Claude:
+## 구조
 
 ```
-/roasting --feedback
+roasting/
+├── SKILL.md                       # 트리거 · 설계 알고리즘 · 실행 프로토콜 · 9.5 게이트
+├── README.md                      # 이 문서
+├── LICENSE                        # Apache License 2.0
+└── references/
+    ├── catalog.md                 # 50명 부품 표(선발용)
+    ├── harnesses.md               # 12 레시피 + 토글 + 매칭 키워드
+    ├── agent-prompts.md           # 50명 전체 시스템 프롬프트(실행용, id로 선택)
+    └── execution-modes.md         # 실행 모드 3종 · 병렬/순차 · 에이전트·검토자 템플릿
 ```
 
-This opens a pre-filled GitHub Issue with session metadata attached. **Content is never
-included.** The issue contains case ID, round count, completion status, and your own free
-text. No drafts, no critic comments, no user input.
+## 영감
 
----
+도메인별 에이전트 팀을 구성한다는 발상은 [`revfactory/harness`](https://github.com/revfactory/harness)(에이전트 팀·스킬을 생성하는 메타-스킬)에서 영감을 얻었다. 다만 이 스킬의 50개 역할 프롬프트·12 레시피·실행/검토 로직은 AI ROASTING이 새로 작성하고 로스팅으로 검증한 독립 산출물이다.
 
-## License
+## 라이선스
 
-MIT. See [LICENSE](LICENSE).
+Copyright 2026 AI ROASTING (Jayden Kang). [Apache License 2.0](./LICENSE) 하에 배포된다.
